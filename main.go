@@ -1,3 +1,15 @@
+// Copyright 2012 JessonChan and his Girl-friend. All rights reserved.
+// Use of this source code is governed by a BSD-style 'license',
+// that means "Take it down to the copy center and make as many copies as you want"
+// you can find the BSD license on the website http://www.fsf.org/licensing/licenses/index_html#OriginalBSD
+
+/*
+   可以直接使用
+   gorun main.go t Hello,终端发微博 
+   来发微博，也可以打包成二进制的。
+   注意：程序中的client_id和client_secret可以替换成自己的应用。保留只为了大家方便运行
+   TODO 错误检查、Bug修复、帮助信息、功能完善、代码注释 
+*/
 package main
 
 import (
