@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style 'license',
 // that means "Take it down to the copy center and make as many copies as you want"
 // you can find the BSD license on the website http://www.fsf.org/licensing/licenses/index_html#OriginalBSD
+// or you can find a copy named LICENSE.md in the project
 
 /*
    可以直接使用
