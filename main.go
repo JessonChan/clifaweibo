@@ -8,7 +8,10 @@
    可以直接使用
    gorun main.go t Hello,终端发微博 
    来发微博，也可以打包成二进制的。
-   注意：程序中的client_id和client_secret可以替换成自己的应用。保留只为了大家方便运行
+   注意：
+   	i)程序中的client_id和client_secret可以替换成自己的应用。保留只为了大家方便运行
+	ii)程序现在有很多问题，后面会慢慢改的，相信我
+
    TODO 错误检查、Bug修复、帮助信息、功能完善、代码注释 
 */
 package main
