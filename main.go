@@ -97,16 +97,18 @@ func get_access_token_from_http() bool {
 	grant_url_values.Set("code", grant_code)
 	grant_url_values.Set("redirect_uri", redirect_uri)
 	r, _ := http.Post(access_token_url, "application/x-www-form-urlencoded", strings.NewReader(grant_url_values.Encode()))
+	body, _ := ioutil.ReadAll(r.Body)
+	fmt.Println(r,r.Body,body)
+	fmt.Println(string(body))
 	defer r.Body.Close()
 	a := new(AccessToken)
-	err := json.NewDecoder(r.Body).Decode(a)
+	err := json.Unmarshal(body,&a)
 	if err != nil {
 		fmt.Println(err.Error())
 		return false
 	}
 	access_token = a.Access_token
 	uid = a.Uid
-	body, _ := ioutil.ReadAll(r.Body)
 	config_file, err := os.OpenFile(config_path, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return false
