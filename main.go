@@ -27,6 +27,7 @@ import (
 	"os"
 	"strings"
 	"unicode/utf8"
+	"time"
 )
 
 type AccessToken struct {
@@ -269,14 +270,16 @@ func substring(s string, start int, length int) string {
 }
 
 func send_divided_text_weibo(text string) bool {
-	division_number := (utf8.RuneCountInString(text) + weibo_text_length - 1) / weibo_text_length
-	for i := 0 ; i < division_number ; i++ {
-		division_text := "(" + strconv.Itoa(i+1) + "/" + strconv.Itoa(division_number) + ")"
-		division_text += substring(text, i*weibo_text_length, weibo_text_length)
-		fmt.Println(division_text)	
-		if false == send_text_weibo(division_text) {
+	divided_number := (utf8.RuneCountInString(text) + weibo_text_length - 1) / weibo_text_length
+	for i := 0 ; i < divided_number ; i++ {
+		divided_text := "(" + strconv.Itoa(i+1) + "/" + strconv.Itoa(divided_number) + ")"
+		divided_text += substring(text, i*weibo_text_length, weibo_text_length)
+		fmt.Println(divided_text)	
+		if false == send_text_weibo(divided_text) {
 			return false
-		}		
+		}	
+		fmt.Println("分片发送成功")	
+		time.Sleep(5000 * time.Millisecond)		
 	}		
 	return true
 }
