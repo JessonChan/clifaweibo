@@ -5,9 +5,7 @@
 // or you can find a copy named LICENSE.md in the project
 
 /*
-   可以直接使用
-   gorun main.go t Hello,终端发微博 
-   来发微博，也可以打包成二进制的。
+   go build main.go 打包成二进制的
    注意：
    	i)程序中的client_id和client_secret可以替换成自己的应用。保留只为了大家方便运行
 
