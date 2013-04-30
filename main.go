@@ -65,6 +65,7 @@ const (
 	statuses_update_url string = "https://api.weibo.com/2/statuses/update.json"
 	statuses_upload_url string = "https://upload.api.weibo.com/2/statuses/upload.json"
 	unread_count_url    string = "https://rm.api.weibo.com/2/remind/unread_count.json"
+        get_timeline_url    string = "https://api.weibo.com/2/statuses/home_timeline.json"
 )
 
 func get_access_token_from_file() bool {
