@@ -10,7 +10,6 @@
    	i)程序中的client_id和client_secret可以替换成自己的应用。保留只为了大家方便运行
 
 */
-// Just Try
 
 package main
 
@@ -48,6 +47,73 @@ type UnreadCount struct {
 	Photo          int
 }
 
+type GeoInfo     struct {
+	Longitude      string
+	Latitude       string 
+	City           string
+	Province       string
+	CityName       string
+	ProvinceName   string
+	Address        string
+	PinYinAddr     string
+	More           string
+}
+
+type TimeLineStatueUser struct {
+	Id             int64
+	ScreenName     string
+	Name           string
+	Province       string
+	City           string
+	Location       string
+	Description    string
+	Url            string
+	ProImgUrl      string
+	Domain         string
+	Gender         string
+	FollowersCnt   int
+	FriendsCnt     int
+	StatusesCnt    int
+    FavouritesCnt  int
+    CreatedTime    string
+    Following      bool
+    AllowAllActMsg bool
+    Remark         string
+    GeoEnable      bool
+    Verified       bool
+    AllowComment   bool
+    AvatarLarge    string
+    VerifiedReason string
+    FollowMe       bool
+    OnlineStatus   int
+    BiFollowersCnt int
+}
+
+type TimeLineStatus struct {
+    CreatedTime    string
+    Id             int64
+    Text           string
+    Source         string
+    Favorited      bool
+    Truncated      bool
+    InRpyToStuId   string    // in_reply_to_status_id
+    InRpyToUserId  string    // in_reply_to_user_id
+    InRpyToSrnName string    // in_reply_to_screen_name
+    Geo            GeoInfo
+    Mid            int64
+    RepostsCnt     int
+    CommentsCnt    int    
+    User           TimeLineStatueUser
+
+}
+
+type HomeTimeLine struct {
+	Statuses       []TimeLineStatus
+	PreCursor      int64
+    NextCursor     int64
+    TotalNum       int
+}
+
 func (a AccessToken) String() string {
 	return a.Access_token
 }
@@ -67,7 +133,7 @@ const (
 	statuses_update_url string = "https://api.weibo.com/2/statuses/update.json"
 	statuses_upload_url string = "https://upload.api.weibo.com/2/statuses/upload.json"
 	unread_count_url    string = "https://rm.api.weibo.com/2/remind/unread_count.json"
-        get_timeline_url    string = "https://api.weibo.com/2/statuses/home_timeline.json"
+	get_timeline_url    string = "https://api.weibo.com/2/statuses/home_timeline.json"
 )
 
 func get_access_token_from_file() bool {
