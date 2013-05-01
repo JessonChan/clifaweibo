@@ -359,6 +359,9 @@ func show_unread_count(show_from_num int) {
 func show_home_timeline() {
 	u, _ := get_unread_count()
 	h, _ := get_home_timeline()
+	if (u.Status > 20) {
+		u.Status = 20;
+	}
 	for i := 0; i < u.Status; i++ {
 		fmt.Printf("%s: %s\n", h.Statuses[i].User.ScreenName, h.Statuses[i].Text)
 	}
