@@ -21,9 +21,11 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
-	//	"strconv"
+	"strconv"
 	"os"
 	"strings"
+	"unicode/utf8"
+	"time"
 )
 
 type AccessToken struct {
@@ -65,6 +67,7 @@ const (
 	statuses_update_url string = "https://api.weibo.com/2/statuses/update.json"
 	statuses_upload_url string = "https://upload.api.weibo.com/2/statuses/upload.json"
 	unread_count_url    string = "https://rm.api.weibo.com/2/remind/unread_count.json"
+	weibo_text_length   int = 137    //需要减去分割前缀占用的3个字符
 )
 
 func get_access_token_from_file() bool {
@@ -179,9 +182,15 @@ func send_weibo(argc int) {
 				text += " "
 			}
 		}
-		if true == send_text_weibo(text) {
-			fmt.Println("发送成功")
-		}
+		if utf8.RuneCountInString(text) < weibo_text_length + 3 {
+			if true == send_text_weibo(text){
+				fmt.Println("发送成功")
+			}
+		} else {
+			if true == send_divided_text_weibo(text){
+				fmt.Println("发送成功")
+			}
+		}	 
 	case "-p", "p":
 		if true == send_pic_weibo("分享图片", os.Args[argc-1]) {
 			fmt.Println("发送成功")
@@ -225,6 +234,52 @@ func show_unread_count(show_from_num int) {
 			fmt.Printf("%s:%d\n", v, k)
 		}
 	}
+}
+
+func substring(s string, start int, length int) string {
+        by := []byte(s)
+        i:=0
+        for i=0; start >0 && i < len(by); i++ {
+                value := by[i]
+                if value >= 224 {
+                        i+=2;
+                        start --
+                } else if value >=192 && value <224 {
+                        i+=1;
+                        start --
+                } else {
+                        start --
+                }   
+        }   
+        ii := i 
+        for ; length>0 && i < len(by); i++ {
+                value := by[i]
+                if value >= 224 {
+                        i+=2;
+                        length --
+                } else if value >=192 && value <224 {
+                        i+=1;
+                        length --
+                } else {
+                        length --
+                }   
+        }   
+        return s[ii: i]
+}
+
+func send_divided_text_weibo(text string) bool {
+	divided_number := (utf8.RuneCountInString(text) + weibo_text_length - 1) / weibo_text_length
+	for i := 0 ; i < divided_number ; i++ {
+		divided_text := "(" + strconv.Itoa(i+1) + "/" + strconv.Itoa(divided_number) + ")"
+		divided_text += substring(text, i*weibo_text_length, weibo_text_length)
+		fmt.Println(divided_text)	
+		if false == send_text_weibo(divided_text) {
+			return false
+		}	
+		fmt.Println("分片发送成功")	
+		time.Sleep(5000 * time.Millisecond)		
+	}		
+	return true
 }
 
 func main() {
