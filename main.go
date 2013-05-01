@@ -104,7 +104,6 @@ type TimeLineStatus struct {
     RepostsCnt     int
     CommentsCnt    int    
     User           TimeLineStatueUser
-
 }
 
 type HomeTimeLine struct {
@@ -231,6 +230,23 @@ func get_unread_count() (u *UnreadCount, err error) {
 	return u, nil
 }
 
+func get_home_timeline() (h *HomeTimeLine, err error) {
+	get_url := get_timeline_url + "?access_token=" + access_token
+	r, err := http.Get(get_url)
+	defer r.Body.Close()
+	if err != nil {
+		fmt.Println(err.Error())
+		return h, err
+	}
+	h = new(HomeTimeLine)
+	err = json.NewDecoder(r.Body).Decode(h)
+	if err != nil {
+		fmt.Println(err.Error())
+		return h, err
+	}
+	return h, nil
+}
+
 func send_weibo(argc int) {
 	switch os.Args[1] {
 	case "-m", "m":
@@ -296,6 +312,11 @@ func show_unread_count(show_from_num int) {
 	}
 }
 
+func show_home_timeline() {
+	h, _ := get_timeline_url()
+	fmt.Printf("Totle New  WeiBo Num: %d\n", h.TotalNum)
+}
+
 func main() {
 	if false == get_access_token_from_file() {
 		if false == get_access_token_from_http() {
@@ -313,6 +334,9 @@ func main() {
 		if os.Args[1] == "a" || os.Args[1] == "-a" {
 			show_unread_count(1)
 		}
+		if os.Args[1] == "t" || os.Args[1] == "-t" {
+			show_home_timeline()
+		} 
 		return
 	default:
 		send_weibo(argc)
