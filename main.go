@@ -49,7 +49,7 @@ type UnreadCount struct {
 
 type GeoInfo     struct {
 	Longitude      string
-	Latitude       string 
+	Latitude       string
 	City           string
 	Province       string
 	CityName       string
@@ -118,7 +118,7 @@ type TimeLineStatueRetweetStatus struct {
 	PicUrls        []string
 	//Geo            GeoInfo
 	User           TimeLineStatueUser
-}				
+}
 
 type TimeLineStatus struct {
     CreatedTime    string
@@ -360,10 +360,10 @@ func show_home_timeline() {
 	u, _ := get_unread_count()
 	h, _ := get_home_timeline()
 	if (u.Status > 20) {
-		u.Status = 20;
+		u.Status = 20
 	}
 	for i := 0; i < u.Status; i++ {
-		fmt.Printf("%s: %s\n", h.Statuses[i].User.ScreenName, h.Statuses[i].Text)
+		fmt.Printf("%s: %s\n", h.Statuses[i].User.Name, h.Statuses[i].Text)
 	}
 }
 
