@@ -362,7 +362,6 @@ func show_home_timeline() {
 	for i := 0; i < u.Status; i++ {
 		fmt.Printf("%s: %s\n", h.Statuses[i].User.ScreenName, h.Statuses[i].Text)
 	}
-
 }
 
 func main() {
