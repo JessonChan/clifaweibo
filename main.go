@@ -61,6 +61,7 @@ type GeoInfo     struct {
 
 type TimeLineStatueUser struct {
 	Id             int64
+	IdStr          string
 	ScreenName     string
 	Name           string
 	Province       string
@@ -69,7 +70,9 @@ type TimeLineStatueUser struct {
 	Description    string
 	Url            string
 	ProImgUrl      string
+	ProfileUrl     string
 	Domain         string
+	WeiHao         string
 	Gender         string
 	FollowersCnt   int
 	FriendsCnt     int
@@ -78,20 +81,33 @@ type TimeLineStatueUser struct {
     CreatedTime    string
     Following      bool
     AllowAllActMsg bool
-    Remark         string
     GeoEnable      bool
     Verified       bool
+    VerifiedType   int
+    Remark         string
     AllowComment   bool
     AvatarLarge    string
     VerifiedReason string
     FollowMe       bool
     OnlineStatus   int
     BiFollowersCnt int
+    Lang           string
+    Star           int
+    MbType         int
+    MbRank         int
+    BlockWord      int
 }
 
-type TimeLineStatus struct {
-    CreatedTime    string
-    Id             int64
+type TimeLineStatusVisible struct {
+	Type           int
+	ListId         int
+}
+
+type TimeLineStatueRetweetStatus struct {
+	CreatedTime    string
+	Id             int64
+	Mid            string
+	IdStr          string
     Text           string
     Source         string
     Favorited      bool
@@ -99,15 +115,41 @@ type TimeLineStatus struct {
     InRpyToStuId   string    // in_reply_to_status_id
     InRpyToUserId  string    // in_reply_to_user_id
     InRpyToSrnName string    // in_reply_to_screen_name
+    PicUrls        []string
     Geo            GeoInfo
-    Mid            int64
-    RepostsCnt     int
-    CommentsCnt    int    
     User           TimeLineStatueUser
+}				
+
+type TimeLineStatus struct {
+    CreatedTime    string
+    Id             int64
+    Mid            string
+    IdStr          string
+    Text           string
+    Source         string
+    Favorited      bool
+    Truncated      bool
+    InRpyToStuId   string    // in_reply_to_status_id
+    InRpyToUserId  string    // in_reply_to_user_id
+    InRpyToSrnName string    // in_reply_to_screen_name
+    PicUrls        []string
+    Geo            GeoInfo   
+    User           TimeLineStatueUser
+    Pid            int64
+    RetweetStatus  TimeLineStatueRetweetStatus
+    RepostsCnt     int
+    CommentsCnt    int
+    AttitudesCnt   int
+    MLevel         int
+    Visible        TimeLineStatusVisible
 }
+
 
 type HomeTimeLine struct {
 	Statuses       []TimeLineStatus
+	Advertises     []string
+	Ad             []string
+	HasVisible     bool
 	PreCursor      int64
     NextCursor     int64
     TotalNum       int
@@ -313,7 +355,7 @@ func show_unread_count(show_from_num int) {
 }
 
 func show_home_timeline() {
-	h, _ := get_timeline_url()
+	h, _ := get_home_timeline()
 	fmt.Printf("Totle New  WeiBo Num: %d\n", h.TotalNum)
 }
 
