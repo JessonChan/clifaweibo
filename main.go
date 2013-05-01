@@ -360,7 +360,7 @@ func show_home_timeline() {
 	u, _ := get_unread_count()
 	h, _ := get_home_timeline()
 	for i := 0; i < u.Status; i++ {
-		fmt.Printf("@%s: %s\n", h.Statuses[i].User.ScreenName, h.Statuses[i].Text)
+		fmt.Printf("%s: %s\n", h.Statuses[i].User.ScreenName, h.Statuses[i].Text)
 	}
 
 }
