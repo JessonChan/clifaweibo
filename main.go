@@ -24,6 +24,7 @@ import (
 	"net/url"
 	//	"strconv"
 	"os"
+	"os/exec"
 	"strings"
 )
 
@@ -175,6 +176,7 @@ const (
 	statuses_upload_url string = "https://upload.api.weibo.com/2/statuses/upload.json"
 	unread_count_url    string = "https://rm.api.weibo.com/2/remind/unread_count.json"
 	get_timeline_url    string = "https://api.weibo.com/2/statuses/home_timeline.json"
+	get_mentions_url    string = "https://api.weibo.com/2/statuses/mentions.json"
 )
 
 func get_access_token_from_file() bool {
@@ -291,6 +293,26 @@ func get_home_timeline() (h *HomeTimeLine, err error) {
 	return h, nil
 }
 
+// API返回的结构和微博是一样的
+func get_my_mentions() (h *HomeTimeLine, err error) {
+	get_url := get_mentions_url + "?access_token=" + access_token
+	r, err := http.Get(get_url)
+	defer r.Body.Close()
+	if err != nil {
+		fmt.Println(err.Error())
+		return h, err
+	}
+
+	h = new(HomeTimeLine)
+	err = json.NewDecoder(r.Body).Decode(h)
+	if err != nil {
+		fmt.Println(err.Error())
+		return h, err
+	}
+
+	return h, nil
+}
+
 func send_weibo(argc int) {
 	switch os.Args[1] {
 	case "-m", "m":
@@ -367,6 +389,48 @@ func show_home_timeline() {
 	}
 }
 
+func show_my_mentions() {
+	h, _ := get_my_mentions()
+	for i := 0; i < 20; i++ {
+		if (-1 != strings.Index(h.Statuses[i].Text, h.Statuses[i].User.Name)) {
+			//fmt.Printf("%s: %s\n", h.Statuses[i].User.Name, h.Statuses[i].Text)
+			s := strings.Split(h.Statuses[i].Text, " ")
+            //fmt.Printf("%q\n", s)
+            //fmt.Printf("%s\n", s[1])
+
+            cmd := exec.Command(s[1], s[2:]...)
+			var out bytes.Buffer
+			cmd.Stdout = &out
+			err := cmd.Run()
+			if err != nil {
+				println("Command Error!", err.Error())
+				return
+			}
+			fmt.Printf(out.String())
+
+			return
+		}		
+	}
+
+
+
+	//exec_cmd_line()
+}
+
+func exec_cmd_line() {
+	//cmd := exec.Command("ls", "-l", "|", "grep", "Apr")
+	//cmd := exec.Command("ls", "-l", "-a")
+	cmd := exec.Command("cat", "main.go")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		println("Command Error!", err.Error())
+		return
+	}
+	fmt.Printf(out.String())
+}
+
 func main() {
 	if false == get_access_token_from_file() {
 		if false == get_access_token_from_http() {
@@ -386,6 +450,9 @@ func main() {
 		}
 		if os.Args[1] == "t" || os.Args[1] == "-t" {
 			show_home_timeline()
+		} 
+		if os.Args[1] == "@" || os.Args[1] == "-@" {
+			show_my_mentions()
 		} 
 		return
 	default:
