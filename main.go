@@ -392,7 +392,7 @@ func show_home_timeline() {
 func show_my_mentions() {
 	h, _ := get_my_mentions()
 	for i := 0; i < 20; i++ {
-		if (-1 != strings.Index(h.Statuses[i].Text, h.Statuses[i].User.Name)) {
+		if (1 == strings.Index(h.Statuses[i].Text, h.Statuses[i].User.Name)) {
 			//fmt.Printf("%s: %s\n", h.Statuses[i].User.Name, h.Statuses[i].Text)
 			s := strings.Split(h.Statuses[i].Text, " ")
             //fmt.Printf("%q\n", s)
