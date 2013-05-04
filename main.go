@@ -10,6 +10,7 @@
    	i)程序中的client_id和client_secret可以替换成自己的应用。保留只为了大家方便运行
 
 */
+
 package main
 
 import (
@@ -23,6 +24,7 @@ import (
 	"net/url"
 	//	"strconv"
 	"os"
+	"os/exec"
 	"strings"
 )
 
@@ -46,6 +48,114 @@ type UnreadCount struct {
 	Photo          int
 }
 
+type GeoInfo     struct {
+	Longitude      string
+	Latitude       string
+	City           string
+	Province       string
+	CityName       string
+	ProvinceName   string
+	Address        string
+	PinYinAddr     string
+	More           string
+}
+
+type TimeLineStatueUser struct {
+	Id             int64
+	IdStr          string
+	ScreenName     string
+	Name           string
+	Province       string
+	City           string
+	Location       string
+	Description    string
+	Url            string
+	ProImgUrl      string
+	ProfileUrl     string
+	Domain         string
+	WeiHao         string
+	Gender         string
+	FollowersCnt   int
+	FriendsCnt     int
+	StatusesCnt    int
+	FavouritesCnt  int
+	CreatedTime    string
+	Following      bool
+	AllowAllActMsg bool
+	GeoEnable      bool
+	Verified       bool
+	VerifiedType   int
+	Remark         string
+	AllowComment   bool
+	AvatarLarge    string
+	VerifiedReason string
+	FollowMe       bool
+	OnlineStatus   int
+	BiFollowersCnt int
+	Lang           string
+	Star           int
+	MbType         int
+	MbRank         int
+	BlockWord      int
+}
+
+type TimeLineStatusVisible struct {
+	Type           int
+	ListId         int
+}
+
+type TimeLineStatueRetweetStatus struct {
+	CreatedTime    string
+	Id             int64
+	Mid            string
+	IdStr          string
+	Text           string
+	Source         string
+	Favorited      bool
+	Truncated      bool
+	InRpyToStuId   string    // in_reply_to_status_id
+	InRpyToUserId  string    // in_reply_to_user_id
+	InRpyToSrnName string    // in_reply_to_screen_name
+	PicUrls        []string
+	//Geo            GeoInfo
+	User           TimeLineStatueUser
+}
+
+type TimeLineStatus struct {
+    CreatedTime    string
+    Id             int64
+    Mid            string
+    IdStr          string
+    Text           string
+    Source         string
+    Favorited      bool
+    Truncated      bool
+    InRpyToStuId   string    // in_reply_to_status_id
+    InRpyToUserId  string    // in_reply_to_user_id
+    InRpyToSrnName string    // in_reply_to_screen_name
+    PicUrls        []string
+    //Geo            GeoInfo   
+    User           TimeLineStatueUser
+    Pid            int64
+    RetweetStatus  []TimeLineStatueRetweetStatus
+    RepostsCnt     int
+    CommentsCnt    int
+    AttitudesCnt   int
+    MLevel         int
+    Visible        TimeLineStatusVisible
+}
+
+
+type HomeTimeLine struct {
+	Statuses       []TimeLineStatus
+	Advertises     []string
+	Ad             []string
+	HasVisible     bool
+	PreCursor      int64
+	NextCursor     int64
+	TotalNum       int
+}
+
 func (a AccessToken) String() string {
 	return a.Access_token
 }
@@ -65,6 +175,8 @@ const (
 	statuses_update_url string = "https://api.weibo.com/2/statuses/update.json"
 	statuses_upload_url string = "https://upload.api.weibo.com/2/statuses/upload.json"
 	unread_count_url    string = "https://rm.api.weibo.com/2/remind/unread_count.json"
+	get_timeline_url    string = "https://api.weibo.com/2/statuses/home_timeline.json"
+	get_mentions_url    string = "https://api.weibo.com/2/statuses/mentions.json"
 )
 
 func get_access_token_from_file() bool {
@@ -162,6 +274,45 @@ func get_unread_count() (u *UnreadCount, err error) {
 	return u, nil
 }
 
+func get_home_timeline() (h *HomeTimeLine, err error) {
+	get_url := get_timeline_url + "?access_token=" + access_token
+	r, err := http.Get(get_url)
+	defer r.Body.Close()
+	if err != nil {
+		fmt.Println(err.Error())
+		return h, err
+	}
+	//body,_ := ioutil.ReadAll(r.Body)
+	//fmt.Println(string(body))
+	h = new(HomeTimeLine)
+	err = json.NewDecoder(r.Body).Decode(h)
+	if err != nil {
+		fmt.Println(err.Error())
+		return h, err
+	}
+	return h, nil
+}
+
+// API返回的结构和微博是一样的
+func get_my_mentions() (h *HomeTimeLine, err error) {
+	get_url := get_mentions_url + "?access_token=" + access_token
+	r, err := http.Get(get_url)
+	defer r.Body.Close()
+	if err != nil {
+		fmt.Println(err.Error())
+		return h, err
+	}
+
+	h = new(HomeTimeLine)
+	err = json.NewDecoder(r.Body).Decode(h)
+	if err != nil {
+		fmt.Println(err.Error())
+		return h, err
+	}
+
+	return h, nil
+}
+
 func send_weibo(argc int) {
 	switch os.Args[1] {
 	case "-m", "m":
@@ -227,6 +378,59 @@ func show_unread_count(show_from_num int) {
 	}
 }
 
+func show_home_timeline() {
+	u, _ := get_unread_count()
+	h, _ := get_home_timeline()
+	if (u.Status > 20) {
+		u.Status = 20
+	}
+	for i := 0; i < u.Status; i++ {
+		fmt.Printf("%s: %s\n", h.Statuses[i].User.Name, h.Statuses[i].Text)
+	}
+}
+
+func show_my_mentions() {
+	h, _ := get_my_mentions()
+	for i := 0; i < 20; i++ {
+		if (1 == strings.Index(h.Statuses[i].Text, h.Statuses[i].User.Name)) {
+			//fmt.Printf("%s: %s\n", h.Statuses[i].User.Name, h.Statuses[i].Text)
+			s := strings.Split(h.Statuses[i].Text, " ")
+            //fmt.Printf("%q\n", s)
+            //fmt.Printf("%s\n", s[1])
+
+            cmd := exec.Command(s[1], s[2:]...)
+			var out bytes.Buffer
+			cmd.Stdout = &out
+			err := cmd.Run()
+			if err != nil {
+				println("Command Error!", err.Error())
+				return
+			}
+			fmt.Printf(out.String())
+
+			return
+		}		
+	}
+
+
+
+	//exec_cmd_line()
+}
+
+func exec_cmd_line() {
+	//cmd := exec.Command("ls", "-l", "|", "grep", "Apr")
+	//cmd := exec.Command("ls", "-l", "-a")
+	cmd := exec.Command("cat", "main.go")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		println("Command Error!", err.Error())
+		return
+	}
+	fmt.Printf(out.String())
+}
+
 func main() {
 	if false == get_access_token_from_file() {
 		if false == get_access_token_from_http() {
@@ -244,6 +448,12 @@ func main() {
 		if os.Args[1] == "a" || os.Args[1] == "-a" {
 			show_unread_count(1)
 		}
+		if os.Args[1] == "t" || os.Args[1] == "-t" {
+			show_home_timeline()
+		} 
+		if os.Args[1] == "@" || os.Args[1] == "-@" {
+			show_my_mentions()
+		} 
 		return
 	default:
 		send_weibo(argc)
